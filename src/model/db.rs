@@ -17,6 +17,16 @@ pub async fn pexec(db: &Db, file: &str) -> Result<(), sqlx::Error> {
         println!("ERROR reading {} (cause: {:?})", file, ex);
         ex
     })?;
+
+    let sqls: Vec<&str> = content.split(';').collect();
+
+    for sql in sqls {
+        match sqlx::query(sql).execute(db).await {
+            Ok(_) => (),
+            Err(ex) => println!("ERROR - pexec - Sql file '{}' FAILED cause: {}", file, ex),
+        }
+    }
+
     Ok(())
 }
 
